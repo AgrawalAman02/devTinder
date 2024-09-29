@@ -15,6 +15,23 @@ app.listen(7777, ()=>{
 
 // is we want different response to different request then 
 // we can pass a path in the first parameter then on /tset this will show this console 
+
+
+/*
+! if we use this below piece of code here then as it is checking linewise then first it check that / we are getting then after / if we got anything then still it will give this same output
+! but if we write this piece after all subpath then it will first check the subpath if subpath correct then it will show that otherwise the root path which is defined below
+! so order matters a lot a lot alot .. so routing order is essential 
+
+app.use("/",(req,res)=>{
+    res.send("Namaste from server");
+});
+*/
+// if this piece of code is written below test then this abraadabrah will not print in this route as fisrst it check the /test is availbale ? -Yes then it will print 
+// but we are writing before then forst it check the /test/1 if yess then it send this response otherwise / test response
+app.use("/test/1", (req,res)=>{
+    res.send("ABRAKADABRAH...");    
+});
+
 app.use("/test",(req,res)=>{
     res.send("hello from test");
 });
