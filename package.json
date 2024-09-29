@@ -1,0 +1,23 @@
+{
+  "name": "dev-tinder",
+  "version": "1.0.0",
+  "description": "tinder for developers-where devs connect",
+  "main": "index.js",
+  "scripts": {
+    "start" : "node src/app.js",
+    "dev" : "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": " "
+  },
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Aman Agrawal",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
