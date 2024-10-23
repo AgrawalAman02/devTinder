@@ -8,24 +8,19 @@ app.listen(7777, ()=>{
     console.log("Server is successfully listening on port 7777");
 });
 
-// Handle Auth MiddleWare for all GET , POST , And others..
-const { adminAuth , userAuth } = require("./middlewares/auth");
-app.use("/admin", adminAuth );
-// app.use("/user", userAuth ); // we can also write this 
-// app.use("/user", (req,res)=>{
-//     res.send("Fetch User Successfully...");
-// })
-
-// or we cann even do the following way in one method
-
-app.use("/user",  userAuth, (req, res)=>{
+// learning error handling...
+app.use("/user", (req, res)=>{
     res.send("User Fetched Successfully");
+    // as we always write everyhing in the try-catch block and throw the error 
+    // but sometimes due to unhandled error, it lead to show vulnerable info in the page 
+    // so we do the different stuff
 });
 
-app.use("/admin/getAllData", (req,res)=>{
-    res.send("All Data Sent...");
-});
-app.use("/admin/deleteAllData", (req,res)=>{
-    res.send("All Data deleted...");
-});
-
+//  as we knw that / is wildcard for everyone , so when  nothig matches then lastly we handled it in route "/" 
+app.use("/", (err,req,res,next)={   // when four parameters are used then forst one is the error //! REMEMBER
+    if(err){
+        // we should also log that error so that i can able to get that error
+        console.log
+        res.status(500).send("something went wrong");
+    }
+})
