@@ -3,17 +3,15 @@ const connectDB = require("./config/database");   // connection to the db
 const app = express();
 const User = require("./models/user");
 
+// we want middleware to convert the json from the enduser to js object , so we use the express.json()
+
+app.use(express.json());
+
 // API for signup (using POST HTTP method to add a new user)
 app.post("/signup", async (req,res)=>{
+    // console.log(req) gives a whole req but we get the data from the endpoit in readable format and the data is present in the body 
     // Creating a new instance of the User model
-    const user = new User({
-        firstName : "aman",
-        lastName : "kumar",
-        age: "21",
-        gender : "Male",
-        emailId :"aman@gmail.com",
-        password: "aman123",
-    });
+    const user = new User(req.body);  // makes the data dynamic by passing data from request 
 
     await user.save()
         .then(()=>{
