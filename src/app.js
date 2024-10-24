@@ -38,7 +38,7 @@ app.get("/user",async (req,res)=>{  // we are finding using email which we got i
     catch(err){
         res.status(500).send("Something went wrong..");
     }
-})
+});
 
 // API for Feed - to get all the user from the database
 app.get("/feed", async (req,res)=>{
@@ -50,7 +50,36 @@ app.get("/feed", async (req,res)=>{
         res.status(500).send("Something went wrong..");
     }
     
+});
+
+
+// API for Updating the details of user
+app.patch("/user", async (req,res)=>{
+    const userId = req.body.userId;
+    const data = req.body;
+    try{
+        const user = await User.findByIdAndUpdate(userId, data);
+
+        res.send("User Updated successfully...");
+    }
+    catch(err){
+        res.status(500).send("Something went wrong..");
+    }
 })
+
+// API for deleting the user 
+app.delete("/user", async (req,res)=>{
+    const userId = req.body.userId;
+
+    try{
+        const user = await User.findByIdAndDelete(userId);
+
+        res.send("User deleted successfully...");
+    }
+    catch(err){
+        res.status(500).send("Something went wrong..");
+    }
+});
 
 connectDB()
     .then(()=>{
