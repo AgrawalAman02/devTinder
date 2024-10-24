@@ -24,6 +24,34 @@ app.post("/signup", async (req,res)=>{
 // we can use try and catch block
 });
 
+// Api to get user by email
+app.get("/user",async (req,res)=>{  // we are finding using email which we got in request 
+    try{
+        const users = await User.find({emailId : req.body.emailId});   // is we use findOne then it return only one in case of duplication
+        if(users.length === 0){
+            res.status(404).send("User Not Send");
+        }else{
+            res.send(users);
+        }
+        
+    }
+    catch(err){
+        res.status(500).send("Something went wrong..");
+    }
+})
+
+// API for Feed - to get all the user from the database
+app.get("/feed", async (req,res)=>{
+    try{
+        const users = await User.find({});  // empty filter so that we will get all the user
+        res.send(users);
+    }
+    catch(err){
+        res.status(500).send("Something went wrong..");
+    }
+    
+})
+
 connectDB()
     .then(()=>{
         console.log("DB Connection Established Successfully...");
