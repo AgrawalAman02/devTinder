@@ -4,6 +4,7 @@ const app = express();
 const User = require("./models/user");
 const { validateSignUp } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 // we want middleware to convert the json from the enduser to js object , so we use the express.json()
 
@@ -35,6 +36,34 @@ app.post("/signup", async (req,res)=>{
         };
 // we can use try and catch block
 });
+
+app.post("/login", async (req,res)=>{
+    
+    try{
+        const {emailId, password} = req.body;
+        // we need to check whether the email id is valid or not . we dont have to check for the password during login
+        if(!validator.isEmail(emailId)){
+            throw new Error("Invalid Credentials...");
+        }
+        const user= await User.findOne({emailId: emailId});
+        if(!user){
+            throw new Error("User not Exist...");
+        }
+        console.log(user);
+        console.log(password,user.password);
+        const isMatchedPassword = await bcrypt.compare(password,user.password);
+        console.log(isMatchedPassword);
+
+        if(isMatchedPassword){
+            res.send("Login successful...");
+        }else{
+            throw new Error("Login failed : Password Not Matched...");
+        }
+    }
+    catch(err){
+        res.status(400).send("ERROR:"+ err);
+    }
+})
 
 // Api to get user by email
 app.get("/user",async (req,res)=>{  // we are finding using email which we got in request 
