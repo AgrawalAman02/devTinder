@@ -54,10 +54,22 @@ app.get("/feed", async (req,res)=>{
 
 
 // API for Updating the details of user
-app.patch("/user", async (req,res)=>{
-    const userId = req.body.userId;
+app.patch("/user/:userId", async (req,res)=>{
+    const userId = req.params?.userId;  // getting user id from the api 
     const data = req.body;
+
     try{
+        const ALLOWED_UPDATES = ["photoUrl", "about", "skills", "gender","age"];
+        const isUpdateAllowed = Object.keys(data).every((k)=>{   // checking if the data for updating is present in the ALLOWED UPDAtes array
+            ALLOWED_UPDATES.includes(k);
+        });
+        if(!isUpdateAllowed){   // if data is not present then updates is not allowed...
+            throw new Error("Updates not allowed...");
+        }
+        // to restrict user to enter only a fixed amount of the skills,we can add validation
+        if(data?.skills.length() > 10){
+            throw new Error("Skills cant be more than 10...");
+        }
         const user = await User.findByIdAndUpdate(userId, data,{
             returnDocument : "after",
             runValidators : true,   // to enable the validation on update,
