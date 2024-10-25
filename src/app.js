@@ -2,6 +2,8 @@ const express = require('express');  // import the express
 const connectDB = require("./config/database");   // connection to the db
 const app = express();
 const User = require("./models/user");
+const { validateSignUp } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 // we want middleware to convert the json from the enduser to js object , so we use the express.json()
 
@@ -9,18 +11,28 @@ app.use(express.json());
 
 // API for signup (using POST HTTP method to add a new user)
 app.post("/signup", async (req,res)=>{
-    // console.log(req) gives a whole req but we get the data from the endpoit in readable format and the data is present in the body 
-    // Creating a new instance of the User model
-    const user = new User(req.body);  // makes the data dynamic by passing data from request 
+    try{
+        //  validation of the data
+        validateSignUp(req);
 
-    await user.save()
-        .then(()=>{
-            res.send("User Added Successfully...");
-        })
-        .catch((err)=>{
-            res.status(501).send("there is something wrong while adding the user ..."+ err.message);
-            console.log(err);
-        });
+        // encryption of password 
+        const {firstName, lastName, emailId, password} = req.body;
+
+        const hashPassword = await bcrypt.hash(password,10); // 10 round salting is enough
+
+        // console.log(req) gives a whole req but we get the data from the endpoit in readable format and the data is present in the body 
+        // Creating a new instance of the User model
+        const user = new User({
+            firstName, lastName, emailId, password : hashPassword,
+        });  // makes the data dynamic by passing data from request 
+
+        await user.save()
+        res.send("User Added Successfully...");
+      
+    }catch(err){
+        res.status(400).send("ERROR: "+ err.message);
+        console.log(err);
+        };
 // we can use try and catch block
 });
 
