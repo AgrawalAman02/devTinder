@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const validator = require("validator");
 // const userSchema = new mongoose.Schema({
 //     firstName :  {
 //         type : String
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     lastName : {
         type : String,
-        minLength : [2,'Must be atleast 4 character long. Entered : {VALUE}'],
+        minLength : [2,'Must be atleast 2 character long. Entered : {VALUE}'],
     }, 
     emailId : {
         type : String,
@@ -37,11 +37,22 @@ const userSchema = new mongoose.Schema({
         lowercase : true,
         // if we want to compare after removing the initial and folllowing whitespaces then we use trim
         trim : true,
+        // validating if the  url is valid or not
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error("Invalid Email Id"+ value);
+            }
+        },
         immutable : true,
     },
     password : {
         type : String,
         required : [true, 'Password is required...'],
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Weak password! Password must have minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 ");
+            }
+        },
     },
     age : {
         type : Number,
@@ -61,7 +72,12 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl : {
         type : String,
-        default : "https://th.bing.com/th/id/OIP.dZ5jtDvU7KmHfjCen9dp1QAAAA?w=146&h=150&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+        default : "https://th.bing.com/th/id/OIP.dZ5jtDvU7KmHfjCen9dp1QAAAA?w=146&h=150&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+        validate(value){
+            if(!validator.isURL(value)){
+                throw new Error("Invalid Photo URL : "+ value);
+            }
+        },
     },
     about : {
         type : String,
