@@ -18,7 +18,7 @@ app.post("/signup", async (req,res)=>{
             res.send("User Added Successfully...");
         })
         .catch((err)=>{
-            res.status(501).send("there is something wrong while adding the user ...");
+            res.status(501).send("there is something wrong while adding the user ..."+ err.message);
             console.log(err);
         });
 // we can use try and catch block
@@ -58,12 +58,15 @@ app.patch("/user", async (req,res)=>{
     const userId = req.body.userId;
     const data = req.body;
     try{
-        const user = await User.findByIdAndUpdate(userId, data);
+        const user = await User.findByIdAndUpdate(userId, data,{
+            returnDocument : "after",
+            runValidators : true,   // to enable the validation on update,
+        });
 
         res.send("User Updated successfully...");
     }
     catch(err){
-        res.status(500).send("Something went wrong..");
+        res.status(500).send("Something went wrong.."+ err.message);
     }
 })
 
