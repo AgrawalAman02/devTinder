@@ -1,14 +1,20 @@
 const express = require('express');  // import the express 
+require("dotenv").config();
+const PORT = process.env.PORT;
 const connectDB = require("./config/database");   // connection to the db
 const app = express();
 const User = require("./models/user");
 const { validateSignUp } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.SECRET_KEY;
 
 // we want middleware to convert the json from the enduser to js object , so we use the express.json()
 
 app.use(express.json());
+app.use(cookieParser());
 
 // API for signup (using POST HTTP method to add a new user)
 app.post("/signup", async (req,res)=>{
@@ -49,12 +55,19 @@ app.post("/login", async (req,res)=>{
         if(!user){
             throw new Error("User not Exist...");
         }
-        console.log(user);
-        console.log(password,user.password);
+        // console.log(user);
+        // console.log(password,user.password);
         const isMatchedPassword = await bcrypt.compare(password,user.password);
-        console.log(isMatchedPassword);
+        // console.log(isMatchedPassword);
 
         if(isMatchedPassword){
+            // we will add the logic of authentication , token  & cookies here 
+
+            // 1> Create a JWT Token 
+            const token = await jwt.sign({ id : user._id} , SECRET_KEY,);
+            // 2> Add the token to the cookie and send the response back to the user
+            res.cookie("token", token);
+
             res.send("Login successful...");
         }else{
             throw new Error("Login failed : Password Not Matched...");
@@ -63,6 +76,28 @@ app.post("/login", async (req,res)=>{
     catch(err){
         res.status(400).send("ERROR:"+ err);
     }
+})
+
+
+app.get("/profile",async (req, res)=>{
+    try{
+        const cookies = req.cookies;
+
+        const {token} = cookies;
+        if(!token) 
+            throw new Error("Invalid Token");
+        // validate the token i.e. if the token is valid then get the profile otherwose login again
+        const decodedMessage = await jwt.verify(token, SECRET_KEY);
+        const {id} = decodedMessage;
+        const user = await User.findById(id);
+        if(!user) 
+            throw new Error("User not found. Please login again...");
+        res.send(user);
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
+    }
+
 })
 
 // Api to get user by email
@@ -140,10 +175,10 @@ app.delete("/user", async (req,res)=>{
 connectDB()
     .then(()=>{
         console.log("DB Connection Established Successfully...");
-        app.listen(7777, ()=>{
-            console.log("Server is successfully listening on port 7777");
+        app.listen(PORT, ()=>{
+            console.log("Server is successfully listening on port");
         });
     })
-    .catch(()=>{
-        console.error("Connection Failure");
+    .catch((err)=>{
+        console.error("Connection Failure"+ err.message);
     });
