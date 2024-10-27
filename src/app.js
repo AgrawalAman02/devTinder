@@ -10,7 +10,7 @@ const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const {userAuth} = require("./middlewares/auth");
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
 
 // we want middleware to convert the json from the enduser to js object , so we use the express.json()
 
@@ -58,21 +58,21 @@ app.post("/login", async (req,res)=>{
         }
         // console.log(user);
         // console.log(password,user.password);
-        const isMatchedPassword = await bcrypt.compare(password,user.password);
+        const isMatchedPassword = await user.validatePassword(password);
         // console.log(isMatchedPassword);
 
         if(isMatchedPassword){
             // we will add the logic of authentication , token  & cookies here 
 
             // 1> Create a JWT Token 
-            const token = await jwt.sign({ id : user._id} , JWT_SECRET_KEY,{expiresIn: "1d"});
+            const token = await user.getJWT();
             // 2> Add the token to the cookie and send the response back to the user
             res.cookie("token", token,{
                 expires : new Date(Date.now() + 8*3600000),
             });
 
             res.send("Login successful...");
-        }else{
+        }else{  
             throw new Error("Login failed : Password Not Matched...");
         }
     }

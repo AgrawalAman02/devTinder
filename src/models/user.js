@@ -1,20 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-// const userSchema = new mongoose.Schema({
-//     firstName :  {
-//         type : String
-//     },
-//     lastName : String,  // shorthand for String  if only type is defined
-//     emailId : String,
-//     password : String,
-//     age : String,
-//     gender : String
-// });
-
-// now create a model for user named User where we first pass name of the model and then the name of the schema
-// the name of the model should start with capital as it acts as a class 
-// const User = mongoose.model("User", userSchema);
-
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const bcrypt = require("bcrypt");
 
 // ! Data Sanitisation and schema Validation
 const userSchema = new mongoose.Schema({
@@ -91,8 +80,19 @@ const userSchema = new mongoose.Schema({
     timestamps : true,
 });
 
+userSchema.methods.getJWT= async function(){
+    const user = this;
+    const token = jwt.sign({ id : user._id} , JWT_SECRET_KEY,{expiresIn: "1d"});
+    return token;
+};
 
+userSchema.methods.validatePassword= async function(passwordInputByUser){
+    const user = this;
+    const hashPassword = user.password;
 
+    const isPasswordValid = bcrypt.compare(passwordInputByUser,hashPassword);
+    return isPasswordValid;
+}
 
 // module.exports= User;
 
