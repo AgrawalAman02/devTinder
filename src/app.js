@@ -9,7 +9,8 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = process.env.SECRET_KEY;
+const {userAuth} = require("./middlewares/auth");
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 // we want middleware to convert the json from the enduser to js object , so we use the express.json()
 
@@ -64,9 +65,11 @@ app.post("/login", async (req,res)=>{
             // we will add the logic of authentication , token  & cookies here 
 
             // 1> Create a JWT Token 
-            const token = await jwt.sign({ id : user._id} , SECRET_KEY,);
+            const token = await jwt.sign({ id : user._id} , JWT_SECRET_KEY,{expiresIn: "1d"});
             // 2> Add the token to the cookie and send the response back to the user
-            res.cookie("token", token);
+            res.cookie("token", token,{
+                expires : new Date(Date.now() + 8*3600000),
+            });
 
             res.send("Login successful...");
         }else{
@@ -78,18 +81,10 @@ app.post("/login", async (req,res)=>{
     }
 })
 
-
-app.get("/profile",async (req, res)=>{
+//  API for gettig the profile of logged in user
+app.get("/profile", userAuth, async (req, res)=>{
     try{
-        const cookies = req.cookies;
-
-        const {token} = cookies;
-        if(!token) 
-            throw new Error("Invalid Token");
-        // validate the token i.e. if the token is valid then get the profile otherwose login again
-        const decodedMessage = await jwt.verify(token, SECRET_KEY);
-        const {id} = decodedMessage;
-        const user = await User.findById(id);
+        const user = req.user;
         if(!user) 
             throw new Error("User not found. Please login again...");
         res.send(user);
@@ -100,77 +95,13 @@ app.get("/profile",async (req, res)=>{
 
 })
 
-// Api to get user by email
-app.get("/user",async (req,res)=>{  // we are finding using email which we got in request 
-    try{
-        const users = await User.find({emailId : req.body.emailId});   // is we use findOne then it return only one in case of duplication
-        if(users.length === 0){
-            res.status(404).send("User Not Send");
-        }else{
-            res.send(users);
-        }
-        
-    }
-    catch(err){
-        res.status(500).send("Something went wrong..");
-    }
-});
-
-// API for Feed - to get all the user from the database
-app.get("/feed", async (req,res)=>{
-    try{
-        const users = await User.find({});  // empty filter so that we will get all the user
-        res.send(users);
-    }
-    catch(err){
-        res.status(500).send("Something went wrong..");
-    }
-    
-});
-
-
-// API for Updating the details of user
-app.patch("/user/:userId", async (req,res)=>{
-    const userId = req.params?.userId;  // getting user id from the api 
-    const data = req.body;
-
-    try{
-        const ALLOWED_UPDATES = ["photoUrl", "about", "skills", "gender","age"];
-        const isUpdateAllowed = Object.keys(data).every((k)=>{   // checking if the data for updating is present in the ALLOWED UPDAtes array
-            ALLOWED_UPDATES.includes(k);
-        });
-        if(!isUpdateAllowed){   // if data is not present then updates is not allowed...
-            throw new Error("Updates not allowed...");
-        }
-        // to restrict user to enter only a fixed amount of the skills,we can add validation
-        if(data?.skills.length() > 10){
-            throw new Error("Skills cant be more than 10...");
-        }
-        const user = await User.findByIdAndUpdate(userId, data,{
-            returnDocument : "after",
-            runValidators : true,   // to enable the validation on update,
-        });
-
-        res.send("User Updated successfully...");
-    }
-    catch(err){
-        res.status(500).send("Something went wrong.."+ err.message);
-    }
+// API for sending connection request 
+app.get("/sendConnectionRequest", userAuth, async (req,res)=>{
+    const user = req.user;
+    // Sending the connection request
+    console.log("sending the connection request");
+    res.send(user.firstName + " sent the conection request ");
 })
-
-// API for deleting the user 
-app.delete("/user", async (req,res)=>{
-    const userId = req.body.userId;
-
-    try{
-        const user = await User.findByIdAndDelete(userId);
-
-        res.send("User deleted successfully...");
-    }
-    catch(err){
-        res.status(500).send("Something went wrong..");
-    }
-});
 
 connectDB()
     .then(()=>{
