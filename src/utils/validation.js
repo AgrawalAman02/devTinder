@@ -1,4 +1,5 @@
 const validator = require("validator");
+const bcrypt = require("bcrypt");
 
 const validateSignUp = (req)=>{
     const {firstName, lastName, emailId, password } = req.body;
@@ -30,8 +31,20 @@ const validateEditProfileData = (req,res)=>{
     }
 }
 
+const validatePassword=async (req)=>{
+    const{ newPassword,currentPassword }= req.body;
+    const loggedInUser = req.user;
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword,loggedInUser.password);
+    if(!isCurrentPasswordValid) throw new Error("Your entered pasword didnt matched. Please re-enter the current password");
+
+    if(!validator.isStrongPassword(newPassword)) throw new Error("New Password must be strong enough...");
+    return true;
+}
+
 
 module.exports = {
     validateSignUp,
     validateEditProfileData,
+    validatePassword
 }
