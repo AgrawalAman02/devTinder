@@ -14,6 +14,24 @@ const validateSignUp = (req)=>{
     }
 }
 
+const validateEditProfileData = (req,res)=>{
+    try{
+        const ALLOWED_UPDATES = ["firstName", "lastName", "age", "about","skills","photoUrl"];
+        const isEditAllowed = Object.keys(req.body).every((key)=>{
+            return ALLOWED_UPDATES.includes(key)
+        }); 
+        if(req.body.skills?.length>10) throw new Error("Max 10 skills allowed...");
+        if(req.body.about?.length>50) throw new Error("max length of about is 50...");
+
+        return isEditAllowed;
+    } catch(err){
+        res.status(401).send("ERROR: "+err.message);
+        return false;
+    }
+}
+
+
 module.exports = {
     validateSignUp,
+    validateEditProfileData,
 }
