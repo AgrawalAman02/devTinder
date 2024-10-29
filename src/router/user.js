@@ -64,9 +64,15 @@ router.get("/user/connections", userAuth, async (req,res)=>{
 });
 
 
-router.get("/user/feed", userAuth, async(req, res)=>{
+router.get("/user/feed?.page=1&limit=10", userAuth, async(req, res)=>{
     try{
         const loggedInUser = req.user;
+        const page = parseInt(req.params.page) || 1;
+        let limit = parseInt(req.params.limit) || 10;
+        limit = limit>50? 50 : limit;
+
+        const skip = (page-1)*limit;
+
         const connectionRequest = await ConnectionRequest.find({
             $or: [
                 {fromUserId : loggedInUser._id,},
@@ -86,7 +92,7 @@ router.get("/user/feed", userAuth, async(req, res)=>{
                 {_id : {$nin : Array.from(hiddenUserFromFeed)}, },
                 { _id : {$ne : loggedInUser._id},},
             ]
-        }).select("firstName lastName photoUrl skills");
+        }).select("firstName lastName photoUrl skills").skip(skip).limit(limit);
 
         res.send(user);
     }catch(err){
