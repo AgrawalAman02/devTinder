@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         type : String,
         required : true,
         // to make the field unique so that duplicate is not allowed
-        unique : [true, 'Email-Id must be unique'],
+        unique : [true, 'Email-Id must be unique'],   // it automatically create the unique index
         // if we want every char to be lowercase then make it true so that when someone entrs in cammelcase/other then it auto changes to lowercase
         lowercase : true,
         // if we want to compare after removing the initial and folllowing whitespaces then we use trim
@@ -49,12 +49,16 @@ const userSchema = new mongoose.Schema({
     },
     gender :{
         type : String,
+        enum : {
+            values : ["male","female","others"],
+            message : `{VALUE} is not a valid gender data`
+        },
         lowercase : true,
-        validate(value){
-            if(!["male", "female","others"].includes(value)){
-                throw new Error("Gender Data is not valid");
-            }
-        }
+        // validate(value){
+        //     if(!["male", "female","others"].includes(value)){
+        //         throw new Error("Gender Data is not valid");
+        //     }
+        // }
         // but this validate only appl when i add new user but it not applied when i update an user
         // so we have to enable to run on updates also
         // so we have to go to the update method in patch i.e. findByIdAndUpdate , where we use option for running validators
@@ -79,6 +83,12 @@ const userSchema = new mongoose.Schema({
 {
     timestamps : true,
 });
+
+// creating a compound index  
+userSchema.index({
+    firstName : 1,   //  1 means index in ascending order & -1 means sort in descending order
+    lastName : 1,
+})
 
 userSchema.methods.getJWT= async function(){
     const user = this;
