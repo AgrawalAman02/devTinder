@@ -56,5 +56,45 @@ router.get("/request/send/:status/:userId", userAuth, async (req,res)=>{
     }
 })
 
+// API for reviewing the request 
+router.post("/request/review/:status/:requestId", userAuth, async (req, res)=>{
+    try{
+        const loggedInUser = req.user;
+        const { status , requestId}= req.params;
 
+        const allowedStatus = ["accepted", "rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({
+                message : "invalid status type , status : " + status,
+                success : false,
+            });
+        }
+
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id : requestId,
+            toUserId : loggedInUser._id,
+            status : "interested",
+        });
+
+        if(!connectionRequest) {
+            return res.status(400).json({
+                message : "connection request not found...",
+                success : false,
+            });
+        }
+
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+        
+        res.json({
+            message : "Connection Request : "+ status,
+            success : true,
+            data,
+        });
+    }
+    catch(err){
+        // console.log(err);
+        res.status(404).send("ERROR : "+ err.message);
+    }
+});
 module.exports = router;
