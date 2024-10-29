@@ -5,7 +5,7 @@ const ConnectionRequest = require("../models/connection");
 const User = require("../models/user");
 
 // API for sending connection request 
-router.get("/request/send/:status/:userId", userAuth, async (req,res)=>{
+router.post("/request/send/:status/:userId", userAuth, async (req,res)=>{
     try{
         const fromUserId = req.user.id;
         const toUserId = req.params.userId;
