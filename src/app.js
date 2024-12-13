@@ -10,7 +10,7 @@ const requestRouter  = require("./router/request");
 const userRouter = require("./router/user");
 
 
-// we want middleware to convert the json from the enduser to js object , so we use the express.json()
+// we want middleware to convert the json from the end-user to js object , so we use the express.json()
 
 app.use(express.json());
 app.use(cookieParser());
