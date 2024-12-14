@@ -47,7 +47,7 @@ router.get("/user/connections", userAuth, async (req,res)=>{
         .populate("toUserId", "firstName lastName photoUrl skills");   // for checking if the connection is sent from the logged in user.
         
         const data = connectionRequest.map((row)=> {
-            if(row.fromUserId._id.toString() === loggegInUser._id.toString()){
+            if(row.fromUserId._id.toString() === loggedInUser._id.toString()){
                 return row.toUserId;
             }
             return row.fromUserId;

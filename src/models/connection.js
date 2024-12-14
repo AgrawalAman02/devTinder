@@ -9,6 +9,7 @@ const connectionSchema = new mongoose.Schema({
     },
     toUserId:{
         type : mongoose.Schema.Types.ObjectId,
+        ref : "User",
         required: true,
     },
     status:{
@@ -22,6 +23,11 @@ const connectionSchema = new mongoose.Schema({
 },
 {
     timestamps : true,
+});
+
+connectionSchema.index({
+    fromUserId : 1,
+    toUserId : 1,
 });
 
 connectionSchema.pre("save", function (next){
