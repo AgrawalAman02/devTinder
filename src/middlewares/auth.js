@@ -6,7 +6,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const userAuth = async (req,res,next)=>{
     try{
         const {token} = req.cookies;
-        if(!token) throw new Error("token not found");
+        if(!token) return res.status(401).send("Please Login!");
         const decodedMessage = await jwt.verify(token,JWT_SECRET_KEY);
         const {id} = decodedMessage;
 

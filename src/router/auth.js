@@ -24,8 +24,12 @@ router.post("/signup", async (req,res)=>{
             firstName, lastName, emailId, password : hashPassword,
         });  // makes the data dynamic by passing data from request 
 
-        await user.save()
-        res.send("User Added Successfully...");
+        const savedUser = await user.save();
+        const token = await savedUser.getJWT();
+        res.cookie("token", token, {
+            expires: new Date(Date.now() + 8 * 3600000),
+        });
+        res.json({ message: "User Added successfully!", data: savedUser });
       
     }catch(err){
         res.status(400).send("ERROR: "+ err.message);
@@ -46,10 +50,7 @@ router.post("/login", async (req,res)=>{
         if(!user){
             throw new Error("User not Exist...");
         }
-        // console.log(user);
-        // console.log(password,user.password);
         const isMatchedPassword = await user.validatePassword(password);
-        // console.log(isMatchedPassword);
 
         if(isMatchedPassword){
             // we will add the logic of authentication , token  & cookies here 
@@ -61,7 +62,7 @@ router.post("/login", async (req,res)=>{
                 expires : new Date(Date.now() + 8*3600000),
             });
 
-            res.send("Login successful...");
+            res.send(user);
         }else{  
             throw new Error("Login failed : Password Not Matched...");
         }

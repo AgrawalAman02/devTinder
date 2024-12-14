@@ -4,6 +4,7 @@ const PORT = process.env.PORT;
 const connectDB = require("./config/database");   // connection to the db
 const app = express();
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const authRouter  = require("./router/auth");
 const profileRouter  = require("./router/profile");
 const requestRouter  = require("./router/request");
@@ -11,7 +12,12 @@ const userRouter = require("./router/user");
 
 
 // we want middleware to convert the json from the end-user to js object , so we use the express.json()
-
+app.use(
+    cors({
+        origin: "https://localhost:5173",
+        credentials: true,
+    })
+)
 app.use(express.json());
 app.use(cookieParser());
 
