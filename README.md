@@ -3,13 +3,16 @@
 ## Overview
 DevTinder is a Node.js-based REST API that facilitates connections between developers. Similar to social networking platforms, it allows users to create profiles, showcase their skills, send connection requests, and build their professional network.
 
+> **Note:** This is currently a backend-only project. Frontend development is planned for future releases.
+
 ## Tech Stack
 - **Runtime:** Node.js
 - **Framework:** Express.js
 - **Database:** MongoDB with Mongoose ORM
-- **Authentication:** bcrypt for password hashing
-- **Security:** bcrypt, cookie-parser
-- **Validation:** validator.js for input validation
+- **Authentication:** JWT & bcrypt
+- **Security:** bcrypt, cookie-parser, CORS
+- **Validation:** validator.js
+- **Development:** Postman for API testing
 
 ## Key Features
 - **User Authentication:** Secure signup, login, and logout functionality
@@ -19,8 +22,8 @@ DevTinder is a Node.js-based REST API that facilitates connections between devel
 - **Feed Generation:** View potential connections filtered by connection status
 - **Password Management:** Secure password update with validation
 
-
-## 📡 API Endpoints
+## 📡 API Documentation
+> Coming soon: Detailed Postman collection for testing all endpoints
 
 ### Authentication
 | Method | Endpoint | Description |
@@ -44,7 +47,6 @@ DevTinder is a Node.js-based REST API that facilitates connections between devel
 | GET | `/user/requests/received` | View pending connection requests |
 | GET | `/user/connections` | View connections |
 | GET | `/user/feed` | View potential matches |
-
 
 ## Installation
 
@@ -75,13 +77,12 @@ JWT_SECRET_KEY=your_secret_key
 ```
 
 ## Usage
-1. Register an account via the `/signup`  endpoint
+1. Register an account via the `/signup` endpoint
 2. Login to receive an authentication token
 3. Update your profile with skills and information
 4. Browse other developers in the feed
 5. Send connection requests to developers you'd like to collaborate with
 6. Accept or reject incoming connection requests
-
 
 ## Security Features
 - Encrypted password storage
@@ -93,5 +94,10 @@ JWT_SECRET_KEY=your_secret_key
 ## Author
 Aman Agrawal
 
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
 ---
 *Connect with developers. Build your network. Create something amazing together.*
+
+> Note: API documentation and Postman collection will be updated soon.
